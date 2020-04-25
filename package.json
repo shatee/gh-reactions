@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npm run build:js && npm run build:html",
     "build:js": "webpack",
-    "build:html": "echo html",
+    "build:html": "cp src/index.html dist/",
+    "deploy": "gh-pages -d dist",
     "lint": "eslint --ext .tsx,.ts --fix src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
