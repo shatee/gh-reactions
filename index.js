@@ -95696,8 +95696,8 @@ exports.ConfigForm = function (_a) {
             react_1.default.createElement(ExpansionPanelSummary_1.default, null,
                 react_1.default.createElement(Typography_1.default, { variant: "h6", component: "h1" }, "Config")),
             react_1.default.createElement(ExpansionPanelDetails_1.default, { className: classes.details },
-                react_1.default.createElement(TextField_1.default, { label: "Personal Access Token", onChange: onPersonalAccessTokenTextChange, value: personalAccessToken }),
-                react_1.default.createElement(TextField_1.default, { label: "Github REST API Base URL", onChange: onBaseUrlTextChange, value: baseUrl })))));
+                react_1.default.createElement(TextField_1.default, { label: "Github REST API Base URL", onChange: onBaseUrlTextChange, value: baseUrl }),
+                react_1.default.createElement(TextField_1.default, { label: "Personal Access Token", onChange: onPersonalAccessTokenTextChange, value: personalAccessToken })))));
 };
 
 
