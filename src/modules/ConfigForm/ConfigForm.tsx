@@ -65,8 +65,8 @@ export const ConfigForm = ({ onPersonalAccessTokenChange, onBaseUrlChange }: Pro
           <Typography variant="h6" component="h1">Config</Typography>
         </ExpansionPanelSummary>
         <ExpansionPanelDetails className={classes.details}>
-          <TextField label="Personal Access Token" onChange={onPersonalAccessTokenTextChange} value={personalAccessToken} />
           <TextField label="Github REST API Base URL" onChange={onBaseUrlTextChange} value={baseUrl} />
+          <TextField label="Personal Access Token" onChange={onPersonalAccessTokenTextChange} value={personalAccessToken} />
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </section>
