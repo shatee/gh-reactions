@@ -32,6 +32,17 @@ const useStyles = makeStyles(theme =>
     },
     itemText: {
     },
+    pull: {
+      display: 'flex',
+      alignItems: 'center',
+      '& > * + *': {
+        marginLeft: theme.spacing(1)
+      }
+    },
+    pullAvatar: {
+      width: theme.spacing(2),
+      height: theme.spacing(2)
+    },
     comment: {
       display: 'flex',
       marginTop: theme.spacing(1),
@@ -53,6 +64,7 @@ export const ReactionList = ({ reactions }: Props) => {
   if (!reactions) return null;
 
   const classes = useStyles();
+  console.log(reactions);
 
   return (
     <Paper className={classes.root}>
@@ -68,8 +80,10 @@ export const ReactionList = ({ reactions }: Props) => {
                 <ReactionIcon content={reaction.content} />
               </div>
               <ListItemText className={classes.itemText}>
-                <Link href={reaction.comment.html_url} target="_blank">
-                  <Typography>{reaction.comment.html_url}</Typography>
+                <Link className={classes.pull} href={reaction.comment.html_url} target="_blank">
+                  <Avatar className={classes.pullAvatar} alt={reaction.pullRequest.user.login} src={reaction.pullRequest.user.avatar_url} />
+                  <Typography>#{reaction.pullRequest.number}</Typography>
+                  <Typography>{reaction.pullRequest.title}</Typography>
                 </Link>
                 <div className={classes.comment}>
                   <Avatar alt={reaction.comment.user.login} src={reaction.comment.user.avatar_url} />
