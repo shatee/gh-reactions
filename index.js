@@ -95382,6 +95382,7 @@ var Toolbar_1 = __importDefault(__webpack_require__(/*! @material-ui/core/Toolba
 var Typography_1 = __importDefault(__webpack_require__(/*! @material-ui/core/Typography */ "./node_modules/@material-ui/core/esm/Typography/index.js"));
 var Container_1 = __importDefault(__webpack_require__(/*! @material-ui/core/Container */ "./node_modules/@material-ui/core/esm/Container/index.js"));
 var CircularProgress_1 = __importDefault(__webpack_require__(/*! @material-ui/core/CircularProgress */ "./node_modules/@material-ui/core/esm/CircularProgress/index.js"));
+var theme_1 = __webpack_require__(/*! ./theme */ "./src/theme.ts");
 var useStyles = styles_1.makeStyles(function (theme) { return styles_1.createStyles({
     root: {},
     container: {
@@ -95421,7 +95422,7 @@ exports.App = function () {
         fetch({ repos: repos, since: since, baseUrl: baseUrl, personalAccessToken: personalAccessToken });
     }, [repos, fetch, personalAccessToken]);
     var classes = useStyles();
-    return (react_1.default.createElement(react_1.default.Fragment, null,
+    return (react_1.default.createElement(styles_1.MuiThemeProvider, { theme: theme_1.theme },
         react_1.default.createElement(CssBaseline_1.default, null),
         react_1.default.createElement(pickers_1.MuiPickersUtilsProvider, { utils: date_fns_1.default, locale: ja_1.default },
             react_1.default.createElement("div", { className: classes.root },
@@ -95972,6 +95973,7 @@ var useStyles = styles_1.makeStyles(function (theme) {
         comment: {
             display: 'flex',
             marginTop: theme.spacing(1),
+            whiteSpace: 'pre-wrap',
             '& > .MuiAvatar-root': {
                 marginRight: theme.spacing(1)
             }
@@ -96116,6 +96118,29 @@ exports.RepositoryForm = function (_a) {
                     react_1.default.createElement(IconButton_1.default, { onClick: onAddRepoClick },
                         react_1.default.createElement(Add_1.default, null)))))));
 };
+
+
+/***/ }),
+
+/***/ "./src/theme.ts":
+/*!**********************!*\
+  !*** ./src/theme.ts ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var core_1 = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/index.js");
+var colors_1 = __webpack_require__(/*! @material-ui/core/colors */ "./node_modules/@material-ui/core/esm/colors/index.js");
+exports.theme = core_1.createMuiTheme({
+    palette: {
+        type: 'dark',
+        primary: colors_1.blue,
+        secondary: colors_1.pink
+    }
+});
 
 
 /***/ }),
