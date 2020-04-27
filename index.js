@@ -95519,7 +95519,7 @@ exports.useFetch = function () {
     var fetch = react_1.useCallback(function (_a) {
         var repos = _a.repos, since = _a.since, baseUrl = _a.baseUrl, personalAccessToken = _a.personalAccessToken;
         return (function () { return __awaiter(void 0, void 0, void 0, function () {
-            var octokit_1, comments_1, reactions_1, users_1, _1;
+            var octokit_1, comments_1, pulls_1, reactions_1, users_1, _1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -95573,8 +95573,9 @@ exports.useFetch = function () {
                             }); }, Promise.resolve([]))];
                     case 2:
                         comments_1 = _a.sent();
+                        pulls_1 = {};
                         return [4 /*yield*/, comments_1.reduce(function (p, comment, i) { return __awaiter(void 0, void 0, void 0, function () {
-                                var prev, _a, owner, repo, data;
+                                var prev, _a, owner, repo, data, match, pullNumber, data_1;
                                 return __generator(this, function (_b) {
                                     switch (_b.label) {
                                         case 0: return [4 /*yield*/, p];
@@ -95594,7 +95595,23 @@ exports.useFetch = function () {
                                             return [4 /*yield*/, wait_1.wait(WAIT_MS)];
                                         case 3:
                                             _b.sent();
-                                            return [2 /*return*/, __spreadArrays(prev, data.map(function (reaction) { return (__assign(__assign({}, reaction), { comment: comment })); }))];
+                                            if (!(data.length && !(comment.pull_request_url in pulls_1))) return [3 /*break*/, 6];
+                                            match = comment.pull_request_url.match(/\/pulls\/([^/]+)/);
+                                            if (!match) return [3 /*break*/, 6];
+                                            pullNumber = parseInt(match[1], 10);
+                                            return [4 /*yield*/, octokit_1.pulls.get({
+                                                    owner: owner,
+                                                    repo: repo,
+                                                    pull_number: pullNumber
+                                                })];
+                                        case 4:
+                                            data_1 = (_b.sent()).data;
+                                            pulls_1[comment.pull_request_url] = data_1;
+                                            return [4 /*yield*/, wait_1.wait(WAIT_MS)];
+                                        case 5:
+                                            _b.sent();
+                                            _b.label = 6;
+                                        case 6: return [2 /*return*/, __spreadArrays(prev, data.map(function (reaction) { return (__assign(__assign({}, reaction), { comment: comment, pullRequest: pulls_1[comment.pull_request_url] })); }))];
                                     }
                                 });
                             }); }, Promise.resolve([]))];
@@ -95941,6 +95958,17 @@ var useStyles = styles_1.makeStyles(function (theme) {
             justifyContent: 'center'
         },
         itemText: {},
+        pull: {
+            display: 'flex',
+            alignItems: 'center',
+            '& > * + *': {
+                marginLeft: theme.spacing(1)
+            }
+        },
+        pullAvatar: {
+            width: theme.spacing(2),
+            height: theme.spacing(2)
+        },
         comment: {
             display: 'flex',
             marginTop: theme.spacing(1),
@@ -95962,6 +95990,7 @@ exports.ReactionList = function (_a) {
     if (!reactions)
         return null;
     var classes = useStyles();
+    console.log(reactions);
     return (react_1.default.createElement(Paper_1.default, { className: classes.root },
         react_1.default.createElement(List_1.default, null, reactions.map(function (reaction, i) { return (react_1.default.createElement(react_1.default.Fragment, null,
             i ? react_1.default.createElement(Divider_1.default, { variant: "inset", component: "li", key: i }) : null,
@@ -95971,8 +96000,12 @@ exports.ReactionList = function (_a) {
                         react_1.default.createElement(Avatar_1.default, { alt: reaction.user.login, src: reaction.user.avatar_url })),
                     react_1.default.createElement(ReactionIcon_1.ReactionIcon, { content: reaction.content })),
                 react_1.default.createElement(ListItemText_1.default, { className: classes.itemText },
-                    react_1.default.createElement(Link_1.default, { href: reaction.comment.html_url, target: "_blank" },
-                        react_1.default.createElement(Typography_1.default, null, reaction.comment.html_url)),
+                    react_1.default.createElement(Link_1.default, { className: classes.pull, href: reaction.comment.html_url, target: "_blank" },
+                        react_1.default.createElement(Avatar_1.default, { className: classes.pullAvatar, alt: reaction.pullRequest.user.login, src: reaction.pullRequest.user.avatar_url }),
+                        react_1.default.createElement(Typography_1.default, null,
+                            "#",
+                            reaction.pullRequest.number),
+                        react_1.default.createElement(Typography_1.default, null, reaction.pullRequest.title)),
                     react_1.default.createElement("div", { className: classes.comment },
                         react_1.default.createElement(Avatar_1.default, { alt: reaction.comment.user.login, src: reaction.comment.user.avatar_url }),
                         react_1.default.createElement(Paper_1.default, { className: classes.body, variant: "outlined" },
