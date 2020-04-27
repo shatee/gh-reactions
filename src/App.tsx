@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { CssBaseline, Container, AppBar, Toolbar, Typography, makeStyles, createStyles } from '@material-ui/core';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import ja from 'date-fns/locale/ja';
@@ -10,6 +10,12 @@ import throttle from 'lodash/throttle';
 import { ReactionList } from './modules/ReactionList/ReactionList';
 import { ConfigForm } from './modules/ConfigForm/ConfigForm';
 import { Filter } from './modules/Filter/Filter';
+import AppBar from '@material-ui/core/AppBar';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Container from '@material-ui/core/Container';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles(theme => createStyles({
   root: {
@@ -27,6 +33,12 @@ const useStyles = makeStyles(theme => createStyles({
     right: 0,
     bottom: 0,
     background: 'rgba(0, 0, 0, 0.2)'
+  },
+  progress: {
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(50%, 50%)'
   }
 }));
 
@@ -41,7 +53,7 @@ export const App = () => {
     localStorage.setItem('repos', repos.join(','));
   }), []);
 
-  const { fetch, reactions, users, fetching } = useFetch();
+  const { fetch, reactions, users, fetching, fetchProgress } = useFetch();
 
   const filteredReactions = useMemo(() => (
     reactions?.filter(reaction => filterUser ? reaction.user.login === filterUser.login : true) || null
@@ -70,7 +82,11 @@ export const App = () => {
             <Filter users={users} onChange={setFilterUser} />
             <ReactionList reactions={filteredReactions} />
           </Container>
-          {fetching ? <div className={classes.overlay} /> : null}
+          {fetching ? (
+            <div className={classes.overlay}>
+              <CircularProgress className={classes.progress} variant="static" value={fetchProgress} />
+            </div>
+          ) : null}
         </div>
       </MuiPickersUtilsProvider>
     </>

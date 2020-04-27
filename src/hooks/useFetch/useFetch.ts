@@ -4,6 +4,7 @@ import { parseRepositoryURL } from '../../utils/parseRepositoryURL';
 import { wait } from '../../utils/wait';
 
 const PER_PAGE = 100;
+const WAIT_MS = 100;
 
 // octokit が export してないのでコピペして抜粋
 export type User = {
@@ -59,17 +60,20 @@ type Return = {
   reactions: Reaction[] | null;
   users: User[] | null;
   fetching: boolean;
+  fetchProgress: number | undefined;
 };
 
 export const useFetch = (): Return => {
   const [reactions, setReactions] = useState<Reaction[]|null>(null);
   const [users, setUsers] = useState<User[]|null>(null);
   const [fetching, setFetching] = useState(false);
+  const [fetchProgress, setFetchProgress] = useState<number>();
 
   const fetch = useCallback(({ repos, since, baseUrl, personalAccessToken }: FetchParams) => {
     return (async () => {
       if (fetching) return;
       setFetching(true);
+      setFetchProgress(0);
       try {
         const octokit = new Octokit({
           baseUrl,
@@ -77,20 +81,26 @@ export const useFetch = (): Return => {
         });
 
         const comments = await repos.reduce<Promise<Comment[]>>(async (p, r) => {
-          const prev = await p;
+          let prev = await p;
           const { owner, repo } = parseRepositoryURL(r);
           if (!owner || !repo) return prev;
-          const { data } = await octokit.pulls.listCommentsForRepo({
-            owner,
-            repo,
-            since: since.toISOString(),
-            per_page: PER_PAGE
-          });
-          await wait(200);
-          return [...prev, ...data];
+          // 最大10ページまでにしておく
+          for (let page = 1; page < 10; page++) {
+            const { data } = await octokit.pulls.listCommentsForRepo({
+              owner,
+              repo,
+              since: since.toISOString(),
+              page,
+              per_page: PER_PAGE
+            });
+            prev = [...prev, ...data];
+            await wait(WAIT_MS);
+            if (data.length < PER_PAGE) break;
+          }
+          return prev;
         }, Promise.resolve([]));
 
-        const reactions = await comments.reduce<Promise<Reaction[]>>(async (p, comment) => {
+        const reactions = await comments.reduce<Promise<Reaction[]>>(async (p, comment, i) => {
           const prev = await p;
           const { owner, repo } = parseRepositoryURL(comment.html_url);
           if (!owner || !repo) return prev;
@@ -99,7 +109,8 @@ export const useFetch = (): Return => {
             owner,
             repo
           });
-          await wait(200);
+          setFetchProgress(((i + 1) / comments.length) * 100);
+          await wait(WAIT_MS);
           return [...prev, ...data.map(reaction => ({...reaction, comment }))];
         }, Promise.resolve([]));
 
@@ -113,8 +124,10 @@ export const useFetch = (): Return => {
         setReactions(reactions);
         setUsers(users);
         setFetching(false);
+        setFetchProgress(undefined);
       } catch (_) {
         setFetching(false);
+        setFetchProgress(undefined);
       }
     })();
   }, [fetching]);
@@ -123,6 +136,7 @@ export const useFetch = (): Return => {
     fetch,
     reactions,
     users,
-    fetching
+    fetching,
+    fetchProgress
   };
 };
