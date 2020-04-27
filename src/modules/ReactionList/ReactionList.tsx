@@ -46,6 +46,7 @@ const useStyles = makeStyles(theme =>
     comment: {
       display: 'flex',
       marginTop: theme.spacing(1),
+      whiteSpace: 'pre-wrap',
       '& > .MuiAvatar-root': {
         marginRight: theme.spacing(1)
       }

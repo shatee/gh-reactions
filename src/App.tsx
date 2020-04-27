@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles, MuiThemeProvider } from '@material-ui/core/styles';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import ja from 'date-fns/locale/ja';
@@ -16,6 +16,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { theme } from './theme';
 
 const useStyles = makeStyles(theme => createStyles({
   root: {
@@ -66,7 +67,7 @@ export const App = () => {
   const classes = useStyles();
 
   return (
-    <>
+    <MuiThemeProvider theme={theme}>
       <CssBaseline />
       <MuiPickersUtilsProvider utils={DateFnsUtils} locale={ja}>
         <div className={classes.root}>
@@ -89,6 +90,6 @@ export const App = () => {
           ) : null}
         </div>
       </MuiPickersUtilsProvider>
-    </>
+    </MuiThemeProvider>
   );
 };
