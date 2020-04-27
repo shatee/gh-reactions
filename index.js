@@ -95365,7 +95365,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var react_1 = __importStar(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
-var core_1 = __webpack_require__(/*! @material-ui/core */ "./node_modules/@material-ui/core/esm/index.js");
+var styles_1 = __webpack_require__(/*! @material-ui/core/styles */ "./node_modules/@material-ui/core/esm/styles/index.js");
 var pickers_1 = __webpack_require__(/*! @material-ui/pickers */ "./node_modules/@material-ui/pickers/esm/index.js");
 var date_fns_1 = __importDefault(__webpack_require__(/*! @date-io/date-fns */ "./node_modules/@date-io/date-fns/build/index.esm.js"));
 var ja_1 = __importDefault(__webpack_require__(/*! date-fns/locale/ja */ "./node_modules/date-fns/locale/ja/index.js"));
@@ -95376,7 +95376,13 @@ var throttle_1 = __importDefault(__webpack_require__(/*! lodash/throttle */ "./n
 var ReactionList_1 = __webpack_require__(/*! ./modules/ReactionList/ReactionList */ "./src/modules/ReactionList/ReactionList.tsx");
 var ConfigForm_1 = __webpack_require__(/*! ./modules/ConfigForm/ConfigForm */ "./src/modules/ConfigForm/ConfigForm.tsx");
 var Filter_1 = __webpack_require__(/*! ./modules/Filter/Filter */ "./src/modules/Filter/Filter.tsx");
-var useStyles = core_1.makeStyles(function (theme) { return core_1.createStyles({
+var AppBar_1 = __importDefault(__webpack_require__(/*! @material-ui/core/AppBar */ "./node_modules/@material-ui/core/esm/AppBar/index.js"));
+var CssBaseline_1 = __importDefault(__webpack_require__(/*! @material-ui/core/CssBaseline */ "./node_modules/@material-ui/core/esm/CssBaseline/index.js"));
+var Toolbar_1 = __importDefault(__webpack_require__(/*! @material-ui/core/Toolbar */ "./node_modules/@material-ui/core/esm/Toolbar/index.js"));
+var Typography_1 = __importDefault(__webpack_require__(/*! @material-ui/core/Typography */ "./node_modules/@material-ui/core/esm/Typography/index.js"));
+var Container_1 = __importDefault(__webpack_require__(/*! @material-ui/core/Container */ "./node_modules/@material-ui/core/esm/Container/index.js"));
+var CircularProgress_1 = __importDefault(__webpack_require__(/*! @material-ui/core/CircularProgress */ "./node_modules/@material-ui/core/esm/CircularProgress/index.js"));
+var useStyles = styles_1.makeStyles(function (theme) { return styles_1.createStyles({
     root: {},
     container: {
         marginBottom: theme.spacing(2),
@@ -95391,6 +95397,12 @@ var useStyles = core_1.makeStyles(function (theme) { return core_1.createStyles(
         right: 0,
         bottom: 0,
         background: 'rgba(0, 0, 0, 0.2)'
+    },
+    progress: {
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(50%, 50%)'
     }
 }); });
 exports.App = function () {
@@ -95403,26 +95415,27 @@ exports.App = function () {
         setRepos(repos);
         localStorage.setItem('repos', repos.join(','));
     }), []);
-    var _f = useFetch_1.useFetch(), fetch = _f.fetch, reactions = _f.reactions, users = _f.users, fetching = _f.fetching;
+    var _f = useFetch_1.useFetch(), fetch = _f.fetch, reactions = _f.reactions, users = _f.users, fetching = _f.fetching, fetchProgress = _f.fetchProgress;
     var filteredReactions = react_1.useMemo(function () { return ((reactions === null || reactions === void 0 ? void 0 : reactions.filter(function (reaction) { return filterUser ? reaction.user.login === filterUser.login : true; })) || null); }, [filterUser, reactions]);
     var onSubmit = react_1.useCallback(function (since) {
         fetch({ repos: repos, since: since, baseUrl: baseUrl, personalAccessToken: personalAccessToken });
     }, [repos, fetch, personalAccessToken]);
     var classes = useStyles();
     return (react_1.default.createElement(react_1.default.Fragment, null,
-        react_1.default.createElement(core_1.CssBaseline, null),
+        react_1.default.createElement(CssBaseline_1.default, null),
         react_1.default.createElement(pickers_1.MuiPickersUtilsProvider, { utils: date_fns_1.default, locale: ja_1.default },
             react_1.default.createElement("div", { className: classes.root },
-                react_1.default.createElement(core_1.AppBar, { position: "static" },
-                    react_1.default.createElement(core_1.Toolbar, null,
-                        react_1.default.createElement(core_1.Typography, null, "gh-reactions"))),
-                react_1.default.createElement(core_1.Container, { className: classes.container, maxWidth: "md" },
+                react_1.default.createElement(AppBar_1.default, { position: "static" },
+                    react_1.default.createElement(Toolbar_1.default, null,
+                        react_1.default.createElement(Typography_1.default, null, "gh-reactions"))),
+                react_1.default.createElement(Container_1.default, { className: classes.container, maxWidth: "md" },
                     react_1.default.createElement(RepositoryForm_1.RepositoryForm, { repos: repos, onChange: onReposChange }),
                     react_1.default.createElement(ConfigForm_1.ConfigForm, { onPersonalAccessTokenChange: setPersonalAccessToken, onBaseUrlChange: setBaseUrl }),
                     react_1.default.createElement(FetchForm_1.FetchForm, { onSubmit: onSubmit }),
                     react_1.default.createElement(Filter_1.Filter, { users: users, onChange: setFilterUser }),
                     react_1.default.createElement(ReactionList_1.ReactionList, { reactions: filteredReactions })),
-                fetching ? react_1.default.createElement("div", { className: classes.overlay }) : null))));
+                fetching ? (react_1.default.createElement("div", { className: classes.overlay },
+                    react_1.default.createElement(CircularProgress_1.default, { className: classes.progress, variant: "static", value: fetchProgress }))) : null))));
 };
 
 
@@ -95497,20 +95510,23 @@ var rest_1 = __webpack_require__(/*! @octokit/rest */ "./node_modules/@octokit/r
 var parseRepositoryURL_1 = __webpack_require__(/*! ../../utils/parseRepositoryURL */ "./src/utils/parseRepositoryURL.ts");
 var wait_1 = __webpack_require__(/*! ../../utils/wait */ "./src/utils/wait.ts");
 var PER_PAGE = 100;
+var WAIT_MS = 100;
 exports.useFetch = function () {
     var _a = react_1.useState(null), reactions = _a[0], setReactions = _a[1];
     var _b = react_1.useState(null), users = _b[0], setUsers = _b[1];
     var _c = react_1.useState(false), fetching = _c[0], setFetching = _c[1];
+    var _d = react_1.useState(), fetchProgress = _d[0], setFetchProgress = _d[1];
     var fetch = react_1.useCallback(function (_a) {
         var repos = _a.repos, since = _a.since, baseUrl = _a.baseUrl, personalAccessToken = _a.personalAccessToken;
         return (function () { return __awaiter(void 0, void 0, void 0, function () {
-            var octokit_1, comments, reactions_1, users_1, _1;
+            var octokit_1, comments_1, reactions_1, users_1, _1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (fetching)
                             return [2 /*return*/];
                         setFetching(true);
+                        setFetchProgress(0);
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 4, , 5]);
@@ -95519,7 +95535,7 @@ exports.useFetch = function () {
                             auth: personalAccessToken
                         });
                         return [4 /*yield*/, repos.reduce(function (p, r) { return __awaiter(void 0, void 0, void 0, function () {
-                                var prev, _a, owner, repo, data;
+                                var prev, _a, owner, repo, page, data;
                                 return __generator(this, function (_b) {
                                     switch (_b.label) {
                                         case 0: return [4 /*yield*/, p];
@@ -95528,24 +95544,36 @@ exports.useFetch = function () {
                                             _a = parseRepositoryURL_1.parseRepositoryURL(r), owner = _a.owner, repo = _a.repo;
                                             if (!owner || !repo)
                                                 return [2 /*return*/, prev];
+                                            page = 1;
+                                            _b.label = 2;
+                                        case 2:
+                                            if (!(page < 10)) return [3 /*break*/, 6];
                                             return [4 /*yield*/, octokit_1.pulls.listCommentsForRepo({
                                                     owner: owner,
                                                     repo: repo,
                                                     since: since.toISOString(),
+                                                    page: page,
                                                     per_page: PER_PAGE
                                                 })];
-                                        case 2:
-                                            data = (_b.sent()).data;
-                                            return [4 /*yield*/, wait_1.wait(200)];
                                         case 3:
+                                            data = (_b.sent()).data;
+                                            prev = __spreadArrays(prev, data);
+                                            return [4 /*yield*/, wait_1.wait(WAIT_MS)];
+                                        case 4:
                                             _b.sent();
-                                            return [2 /*return*/, __spreadArrays(prev, data)];
+                                            if (data.length < PER_PAGE)
+                                                return [3 /*break*/, 6];
+                                            _b.label = 5;
+                                        case 5:
+                                            page++;
+                                            return [3 /*break*/, 2];
+                                        case 6: return [2 /*return*/, prev];
                                     }
                                 });
                             }); }, Promise.resolve([]))];
                     case 2:
-                        comments = _a.sent();
-                        return [4 /*yield*/, comments.reduce(function (p, comment) { return __awaiter(void 0, void 0, void 0, function () {
+                        comments_1 = _a.sent();
+                        return [4 /*yield*/, comments_1.reduce(function (p, comment, i) { return __awaiter(void 0, void 0, void 0, function () {
                                 var prev, _a, owner, repo, data;
                                 return __generator(this, function (_b) {
                                     switch (_b.label) {
@@ -95562,7 +95590,8 @@ exports.useFetch = function () {
                                                 })];
                                         case 2:
                                             data = (_b.sent()).data;
-                                            return [4 /*yield*/, wait_1.wait(200)];
+                                            setFetchProgress(((i + 1) / comments_1.length) * 100);
+                                            return [4 /*yield*/, wait_1.wait(WAIT_MS)];
                                         case 3:
                                             _b.sent();
                                             return [2 /*return*/, __spreadArrays(prev, data.map(function (reaction) { return (__assign(__assign({}, reaction), { comment: comment })); }))];
@@ -95580,10 +95609,12 @@ exports.useFetch = function () {
                         setReactions(reactions_1);
                         setUsers(users_1);
                         setFetching(false);
+                        setFetchProgress(undefined);
                         return [3 /*break*/, 5];
                     case 4:
                         _1 = _a.sent();
                         setFetching(false);
+                        setFetchProgress(undefined);
                         return [3 /*break*/, 5];
                     case 5: return [2 /*return*/];
                 }
@@ -95594,7 +95625,8 @@ exports.useFetch = function () {
         fetch: fetch,
         reactions: reactions,
         users: users,
-        fetching: fetching
+        fetching: fetching,
+        fetchProgress: fetchProgress
     };
 };
 
@@ -95831,29 +95863,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var react_1 = __importDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
-var ListItemIcon_1 = __importDefault(__webpack_require__(/*! @material-ui/core/ListItemIcon */ "./node_modules/@material-ui/core/esm/ListItemIcon/index.js"));
+var styles_1 = __webpack_require__(/*! @material-ui/core/styles */ "./node_modules/@material-ui/core/esm/styles/index.js");
+var useClasses = styles_1.makeStyles(function (theme) { return styles_1.createStyles({
+    root: {
+        paddingRight: theme.spacing(2),
+        fontSize: theme.spacing(3),
+        textAlign: 'right'
+    }
+}); });
 exports.ReactionIcon = function (_a) {
     var content = _a.content;
-    switch (content) {
-        case '+1':
-            return react_1.default.createElement(ListItemIcon_1.default, null, "\uD83D\uDC4D");
-        case '-1':
-            return react_1.default.createElement(ListItemIcon_1.default, null, "\uD83D\uDC4E");
-        case 'laugh':
-            return react_1.default.createElement(ListItemIcon_1.default, null, "\uD83D\uDE04");
-        case 'confused':
-            return react_1.default.createElement(ListItemIcon_1.default, null, "\uD83D\uDE15");
-        case 'heart':
-            return react_1.default.createElement(ListItemIcon_1.default, null, "\u2764\uFE0F");
-        case 'hooray':
-            return react_1.default.createElement(ListItemIcon_1.default, null, "\uD83C\uDF89");
-        case 'rocket':
-            return react_1.default.createElement(ListItemIcon_1.default, null, "\uD83D\uDE80");
-        case 'eyes':
-            return react_1.default.createElement(ListItemIcon_1.default, null, "\uD83D\uDC40");
-        default:
-            return null;
-    }
+    var classes = useClasses();
+    return (react_1.default.createElement("div", { className: classes.root }, (function () {
+        switch (content) {
+            case '+1':
+                return '👍';
+            case '-1':
+                return '👎';
+            case 'laugh':
+                return '😄';
+            case 'confused':
+                return '😕';
+            case 'heart':
+                return '❤️';
+            case 'hooray':
+                return '🎉';
+            case 'rocket':
+                return '🚀';
+            case 'eyes':
+                return '👀';
+            default:
+                return null;
+        }
+    })()));
 };
 
 
